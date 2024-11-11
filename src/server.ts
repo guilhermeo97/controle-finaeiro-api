@@ -13,9 +13,6 @@ const server = express();
 server.use(express.json());
 
 server.use("/", mainRouter);
-server.use("/tasks", taskRouter);
-server.use("/", userRouter);
-server.use("/", userRouter);
 
 export const AppDataSource = new DataSource({
   type: process.env.DB_TYPE as "mysql",

@@ -3,10 +3,15 @@ import { AppDataSource } from "../server";
 
 class UserService {
   private userRepository = AppDataSource.getRepository(User);
-  async create(user: User) {
-    const newUser = this.userRepository.create(user);
+  async create(name: string, email: string, password: string) {
+    const newUser = new User(name, email, password);
+    //const createUser = this.userRepository.create(newUser);
     await this.userRepository.save(newUser);
     return newUser;
+  }
+
+  async findAll() {
+    return this.userRepository.find();
   }
 }
 
