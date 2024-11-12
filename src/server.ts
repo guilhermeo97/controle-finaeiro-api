@@ -1,17 +1,19 @@
 import express from "express";
 import mainRouter from "../src/routes/index";
-import taskRouter from "../src/routes/tasks";
-import userRouter from "../src/routes/users";
 import dotenv from "dotenv";
 import { DataSource } from "typeorm";
-import User from "./entities/user.entity.";
-import Task from "./entities/task.entity";
+import User from "../src/entities/user";
+import Task from "./entities/task";
+
 dotenv.config();
+
+console.log("DB_HOST:", process.env.DB_HOST);
+console.log("DB_PASSWORD:", process.env.DB_PASSWORD);
+console.log("DB_DATABASE:", process.env.DB_DATABASE);
 
 const server = express();
 
 server.use(express.json());
-
 server.use("/", mainRouter);
 
 export const AppDataSource = new DataSource({
@@ -21,7 +23,7 @@ export const AppDataSource = new DataSource({
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
-  synchronize: true, // Use com cautela em produção
+  synchronize: true,
   logging: true,
   entities: [User, Task],
 });
@@ -29,8 +31,13 @@ export const AppDataSource = new DataSource({
 AppDataSource.initialize()
   .then(() => {
     console.log("Database connected");
-    server.listen(parseInt(process.env.DB_PORT as string), () => {
-      console.log(`Server is running on port ${process.env.DB_PORT}`);
+
+    const serverPort = parseInt(process.env.SERVER_PORT || "3000");
+
+    server.listen(serverPort, () => {
+      console.log(`Server is running on port ${serverPort}`);
     });
   })
-  .catch((error) => console.log("Error connecting to the database:", error));
+  .catch((error) => {
+    console.log("Error connecting to the database:", error);
+  });
