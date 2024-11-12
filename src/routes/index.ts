@@ -1,9 +1,9 @@
 import express from "express";
-
+import taskRouter from "./tasks";
+import userRouter from "./users";
 const router = express.Router();
 
-router.get("/", (req, res) => {
-  res.send("Rota de users12");
-});
+router.use("/tasks", taskRouter);
+router.use("/users", userRouter);
 
 export default router;

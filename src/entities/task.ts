@@ -1,26 +1,41 @@
 import { StatusTask } from "./enums/StatusTaskEnum";
-import { Entity } from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import User from "./user";
 
 @Entity("tasks")
 export default class Task {
+  @PrimaryGeneratedColumn()
+  private id!: number;
+  @Column({ type: "varchar" })
   private title: string;
+  @Column({ type: "varchar" })
   private description: string;
+  @Column({ type: "timestamp" })
   private startDate: Date;
-  private endDate: Date;
+  @Column({ type: "timestamp" })
+  private finishDate: Date;
+  @Column({ type: "enum", enum: StatusTask, default: StatusTask.N_INICIADO })
   private status: StatusTask;
+
+  @ManyToOne(() => User, (user) => user.getTasks)
+  private user!: User;
 
   constructor(
     title: string,
     description: string,
     startDate: Date,
-    endDate: Date,
+    finishDate: Date,
     status: StatusTask
   ) {
     this.title = title;
     this.description = description;
     this.startDate = startDate;
-    this.endDate = endDate;
+    this.finishDate = finishDate;
     this.status = status;
+  }
+
+  getId() {
+    return this.id;
   }
 
   getTitle() {
@@ -35,11 +50,15 @@ export default class Task {
     return this.startDate;
   }
 
-  getEndDate() {
-    return this.endDate;
+  getfinishDate() {
+    return this.finishDate;
   }
 
   getStatus() {
     return this.status;
+  }
+
+  getUser() {
+    return this.user;
   }
 }
