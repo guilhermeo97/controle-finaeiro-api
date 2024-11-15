@@ -3,6 +3,7 @@ import express from "express";
 import mainRouter from "../src/routes/index";
 import dotenv from "dotenv";
 import { AppDataSource } from "./data-source";
+import { verifyToken } from "../src/auth/auth";
 
 dotenv.config();
 

@@ -1,26 +1,39 @@
+import User from "../entities/user";
 import UserService from "../services/user.service";
 import { Request, Response } from "express";
 
 class UserController {
-  async create(req: Request, res: Response): Promise<Response> {
+  async create(req: Request, res: Response): Promise<void> {
     const { name, email, password } = req.body;
     if (!name || !email || !password) {
-      return res.status(400).json({ message: "Missing required fields" });
+      res.status(400).json({ message: "Missing required fields" });
+      return;
     }
     try {
       const user = await UserService.create(name, email, password);
-      return res.status(201).json(user);
+      res.status(201).json(user);
     } catch {
-      return res.status(400).json({ message: "Error creating user" });
+      res.status(400).json({ message: "Error creating user" });
     }
   }
 
-  async findAll(_req: Request, res: Response): Promise<Response> {
+  async findAll(req: Request, res: Response): Promise<void> {
     try {
       const users = await UserService.findAll();
-      return res.status(200).json(users);
+      res.status(200).json(users);
     } catch {
-      return res.status(400).json({ message: "Error list users" });
+      res.status(400).json({ message: "Error list users" });
+    }
+  }
+
+  async login(req: Request, res: Response): Promise<void> {
+    const { email, password } = req.body;
+    try {
+      const user = await UserService.login(email, password);
+      res.status(200).json(user);
+    } catch (error) {
+      console.error("Erro no login:", error);
+      res.status(400).json({ message: "Invalid credentials" });
     }
   }
 }

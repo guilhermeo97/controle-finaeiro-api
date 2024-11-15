@@ -1,11 +1,10 @@
 import { MigrationInterface, QueryRunner, Table } from "typeorm";
-import { StatusTask } from "../entities/enums/StatusTaskEnum";
 
 export class CreateUserTableXXXX implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: "tasks",
+        name: "financas",
         columns: [
           {
             name: "id",
@@ -15,28 +14,18 @@ export class CreateUserTableXXXX implements MigrationInterface {
             generationStrategy: "increment",
           },
           {
-            name: "title",
-            type: "varchar",
-            isNullable: false,
-          },
-          {
             name: "description",
             type: "varchar",
             isNullable: false,
             isUnique: true,
           },
           {
-            name: "start_date",
-            type: "timestamp",
+            name: "ocurence_date",
+            type: "date",
             isNullable: true,
           },
           {
-            name: "finish_date",
-            type: "timestamp",
-            isNullable: true,
-          },
-          {
-            name: "state",
+            name: "type_value",
             type: "enum",
           },
         ],
@@ -45,6 +34,6 @@ export class CreateUserTableXXXX implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable("tasks");
+    await queryRunner.dropTable("financas");
   }
 }

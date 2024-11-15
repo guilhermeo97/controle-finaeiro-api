@@ -1,8 +1,11 @@
 import { Router } from "express";
 import UserController from "../controllers/user.controller";
+import { verifyToken } from "../auth/auth";
 
 const router = Router();
 
-router.get("/", UserController.findAll as any);
-router.post("/", UserController.create as any);
+router.get("/", verifyToken, UserController.findAll);
+router.post("/cadastrar", UserController.create);
+router.post("/login", UserController.login);
+
 export default router;

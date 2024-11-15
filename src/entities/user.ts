@@ -1,22 +1,22 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import Task from "./task";
+import Financas from "./financas";
 
 @Entity("users")
 export default class User {
   @PrimaryGeneratedColumn()
-  private id!: number;
+  id!: number;
 
   @Column({ type: "varchar" })
-  private name: string;
+  name: string;
 
   @Column({ type: "varchar" })
-  private email: string;
+  email: string;
 
   @Column({ type: "varchar" })
-  private password: string;
+  password: string;
 
-  @OneToMany(() => Task, (task) => task.getUser)
-  private tasks!: Task[];
+  @OneToMany(() => Financas, (task) => task.getUser)
+  financas!: Financas[];
 
   constructor(name: string, email: string, password: string) {
     this.name = name;
@@ -40,7 +40,7 @@ export default class User {
     return this.password;
   }
 
-  getTasks() {
-    return this.tasks;
+  getFinancas() {
+    return this.financas;
   }
 }
