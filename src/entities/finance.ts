@@ -3,23 +3,32 @@ import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import User from "./user";
 
 @Entity("financas")
-export default class Financas {
+export default class Finance {
   @PrimaryGeneratedColumn()
-  private id!: number;
+  id!: number;
   @Column({ type: "varchar" })
-  private description: string;
+  description: string;
   @Column({ type: "date" })
-  private ocurence_date: Date;
+  ocurenceDate: Date;
   @Column({ type: "enum", enum: TypeValue })
-  private typeValue: TypeValue;
-
+  typeValue: TypeValue;
+  @Column({ type: "decimal" })
+  money: number;
   @ManyToOne(() => User, (user) => user.getFinancas)
-  private user!: User;
+  user!: User;
 
-  constructor(description: string, ocurence_date: Date, typeValue: TypeValue) {
+  constructor(
+    description: string,
+    ocurence_date: Date,
+    typeValue: TypeValue,
+    money: number,
+    user: User
+  ) {
     this.description = description;
-    this.ocurence_date = ocurence_date;
+    this.ocurenceDate = ocurence_date;
     this.typeValue = typeValue;
+    this.money = money;
+    this.user = user;
   }
 
   getId() {
@@ -31,7 +40,7 @@ export default class Financas {
   }
 
   getocurence_date() {
-    return this.ocurence_date;
+    return this.ocurenceDate;
   }
 
   gettypeValue() {

@@ -35,7 +35,7 @@ class UserService {
     if (!email || !password) {
       throw new Error("E-mail e senha são obrigatório");
     }
-    const findUser = await this.userRepository.findOne({ where: { email } });
+    const findUser = await this.findOne(email);
     if (!findUser) {
       throw new Error("Usuário não encontrado");
     }
@@ -44,8 +44,12 @@ class UserService {
       throw new Error("Senha inválida");
     }
 
-    const token = generateToken({ id: findUser.id });
+    const token = generateToken({ email: findUser.email });
     return { data: { findUser, token } };
+  }
+
+  async findOne(email: string) {
+    return this.userRepository.findOne({ where: { email } });
   }
 }
 

@@ -1,5 +1,5 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import Financas from "./financas";
+import Financas from "./finance";
 
 @Entity("users")
 export default class User {

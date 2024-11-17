@@ -28,6 +28,11 @@ export class CreateUserTableXXXX implements MigrationInterface {
             name: "type_value",
             type: "enum",
           },
+          {
+            name: "money",
+            type: "decimal",
+            isNullable: true,
+          },
         ],
       })
     );
