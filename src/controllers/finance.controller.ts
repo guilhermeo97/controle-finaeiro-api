@@ -18,6 +18,31 @@ class FinanceController {
     res.status(200).json(newFinance);
     return;
   }
+
+  async delete(req: Request, res: Response) {
+    const id = +req.params.id;
+
+    if (!id) {
+      throw new Error("Id não informado");
+    }
+    const deleteFinance = await financeService.delete(id);
+    if (!deleteFinance) {
+      res.status(404).send();
+      return;
+    }
+    res.status(204).send();
+    return;
+  }
+
+  async findAll(req: Request, res: Response) {
+    const email = req.user.email;
+    const findFinances = await financeService.findAllByUser(email);
+    if (!findFinances) {
+      res.status(204).send();
+      return;
+    }
+    res.status(200).json(findFinances);
+  }
 }
 
 export default new FinanceController();

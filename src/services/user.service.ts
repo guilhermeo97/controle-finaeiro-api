@@ -6,13 +6,13 @@ import dotenv from "dotenv";
 import { generateToken } from "../auth/auth";
 
 dotenv.config();
-const saultRounds = 10;
 
 class UserService {
   private userRepository = AppDataSource.getRepository(User);
+  private saultRounds = 10;
 
   async bcryptHash(password: string): Promise<string> {
-    const hashedPassword = await bcrypt.hash(password, saultRounds);
+    const hashedPassword = await bcrypt.hash(password, this.saultRounds);
     return hashedPassword;
   }
 
@@ -35,7 +35,7 @@ class UserService {
     if (!email || !password) {
       throw new Error("E-mail e senha são obrigatório");
     }
-    const findUser = await this.findOne(email);
+    const findUser = await this.findUserByEmail(email);
     if (!findUser) {
       throw new Error("Usuário não encontrado");
     }
@@ -48,7 +48,7 @@ class UserService {
     return { data: { findUser, token } };
   }
 
-  async findOne(email: string) {
+  async findUserByEmail(email: string) {
     return this.userRepository.findOne({ where: { email } });
   }
 }

@@ -13,7 +13,7 @@ class FinanceService {
     money: number,
     email: string
   ) {
-    const findUser = await userService.findOne(email);
+    const findUser = await userService.findUserByEmail(email);
     if (!findUser) {
       throw new Error("Usuário não encontrado");
     }
@@ -25,6 +25,39 @@ class FinanceService {
       findUser
     );
     return await this.financeRepository.save(newFinance);
+  }
+
+  async delete(id: number) {
+    const findFinance = await this.findOne(id);
+    if (!findFinance) {
+      return null;
+    }
+    return await this.financeRepository.delete(id);
+  }
+
+  async findOne(id: number) {
+    const findFinance = await this.financeRepository.findOne({ where: { id } });
+    if (!findFinance) {
+      return null;
+    }
+    return findFinance;
+  }
+
+  async findAllByUser(email: string) {
+    const findUser = await userService.findUserByEmail(email);
+    if (!findUser) {
+      return null;
+    }
+
+    const findFinances = await this.financeRepository.find({
+      where: { user: { id: findUser.id } },
+    });
+
+    if (findFinances.length === 0) {
+      return null;
+    }
+
+    return findFinances;
   }
 }
 
