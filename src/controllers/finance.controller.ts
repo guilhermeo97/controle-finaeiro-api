@@ -20,12 +20,12 @@ class FinanceController {
   }
 
   async delete(req: Request, res: Response) {
-    const id = +req.params.id;
+    const userId = +req.params.userId;
 
-    if (!id) {
+    if (!userId) {
       throw new Error("Id não informado");
     }
-    const deleteFinance = await financeService.delete(id);
+    const deleteFinance = await financeService.delete(userId);
     if (!deleteFinance) {
       res.status(404).send();
       return;
@@ -42,6 +42,47 @@ class FinanceController {
       return;
     }
     res.status(200).json(findFinances);
+  }
+
+  async modifyOneFinance(req: Request, res: Response) {
+    const financeId = +req.params.id;
+    const email = req.user.email;
+    if (!financeId || !email) {
+      res.status(403).json("Acesso negado!");
+      return;
+    }
+    const { description, ocurenceDate, typeValue, money, user } = req.body;
+    const newFinance = await financeService.modifyOneFinance(
+      financeId,
+      description,
+      ocurenceDate,
+      typeValue,
+      money,
+      email
+    );
+    if (!newFinance) {
+      res.status(404).send();
+      return;
+    }
+    res.status(200).json(newFinance);
+    return;
+  }
+
+  async findOneFinance(req: Request, res: Response) {
+    const financeId = +req.params.id;
+    const email = req.user.email;
+    if (!financeId || !email) {
+      res.status(403).json("Acesso negado!");
+      return;
+    }
+
+    const findOneFinance = await financeService.findOne(financeId);
+    if (!findOneFinance) {
+      res.status(203).json("Item não encontrado");
+      return;
+    }
+    res.status(200).json(findOneFinance);
+    return;
   }
 }
 

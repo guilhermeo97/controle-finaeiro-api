@@ -4,9 +4,10 @@ import FinanceController from "../controllers/finance.controller";
 
 const router = Router();
 
-//router.get("/", verifyToken, FinanceController);
 router.post("/", verifyToken, FinanceController.create);
 router.delete("/:id", verifyToken, FinanceController.delete);
-//router.post("/login");
+router.get("/", verifyToken, FinanceController.findAll);
+router.get("/:id", verifyToken, FinanceController.findOneFinance);
+router.put("/:id", verifyToken, FinanceController.modifyOneFinance);
 
 export default router;

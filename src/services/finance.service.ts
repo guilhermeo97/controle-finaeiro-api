@@ -59,6 +59,32 @@ class FinanceService {
 
     return findFinances;
   }
+
+  async modifyOneFinance(
+    id: number,
+    description: string,
+    ocurenceDate: Date,
+    typeValue: TypeValue,
+    money: number,
+    email: string
+  ) {
+    const findUser = await userService.findUserByEmail(email);
+    if (!findUser) {
+      return null;
+    }
+
+    const findFinance = await this.findOne(id);
+    if (!findFinance) {
+      return null;
+    }
+
+    findFinance.description = description ?? findFinance.description;
+    findFinance.ocurenceDate = ocurenceDate ?? findFinance.ocurenceDate;
+    findFinance.typeValue = typeValue ?? findFinance.typeValue;
+    findFinance.money = money ?? findFinance.money;
+
+    return this.financeRepository.save(findFinance);
+  }
 }
 
 export default new FinanceService();
