@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import User from "../entities/user";
 import { AppDataSource } from "../data-source";
 import dotenv from "dotenv";
-import { generateToken } from "../auth/auth";
+import { generateToken } from "../middleware/auth/auth";
 
 dotenv.config();
 

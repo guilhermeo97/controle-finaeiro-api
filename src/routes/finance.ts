@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { verifyToken } from "../auth/auth";
+import { verifyToken } from "../middleware/auth/auth";
 import FinanceController from "../controllers/finance.controller";
 
 const router = Router();

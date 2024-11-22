@@ -1,21 +1,27 @@
 import financeService from "../services/finance.service";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
+import { AppError } from "../utils/apperror";
 class FinanceController {
-  async create(req: Request, res: Response): Promise<void> {
-    const { description, ocurenceDate, typeValue, money } = req.body;
-    const email = req.user.email;
-    if (!description || !ocurenceDate || !typeValue || !money) {
-      throw new Error("Campos obrigatórios");
+  async create(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { description, ocurenceDate, typeValue, money } = req.body;
+      const email = req.user.email;
+      if (!description || !ocurenceDate || !typeValue || !money) {
+        throw new AppError("Campos obrigatórios", 400);
+      }
+
+      const newFinance = await financeService.create(
+        description,
+        ocurenceDate,
+        typeValue,
+        money,
+        email
+      );
+      res.status(200).json(newFinance);
+    } catch (err) {
+      next(err);
     }
 
-    const newFinance = await financeService.create(
-      description,
-      ocurenceDate,
-      typeValue,
-      money,
-      email
-    );
-    res.status(200).json(newFinance);
     return;
   }
 
