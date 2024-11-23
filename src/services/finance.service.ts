@@ -27,11 +27,20 @@ class FinanceService {
     return await this.financeRepository.save(newFinance);
   }
 
-  async delete(id: number) {
+  async delete(id: number, email: string) {
+    const findUser = await userService.findUserByEmail(email);
+    if (!findUser) {
+      return null;
+    }
     const findFinance = await this.findOne(id);
     if (!findFinance) {
       return null;
     }
+
+    if (findUser.id === findFinance.user.id) {
+      return null;
+    }
+
     return await this.financeRepository.delete(id);
   }
 

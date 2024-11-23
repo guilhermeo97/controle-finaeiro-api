@@ -17,6 +17,16 @@ server.use(express.json());
 server.use("/", mainRouter);
 server.use(errorMiddleware);
 
+process.on("uncaughtException", (err) => {
+  console.error("Erro não capturado:", err);
+  process.exit(1);
+});
+
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("Rejeição não tratada:", reason);
+  process.exit(1);
+});
+
 AppDataSource.initialize()
   .then(() => {
     console.log("Database connected");
