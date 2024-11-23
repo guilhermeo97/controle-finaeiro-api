@@ -1,39 +1,55 @@
-import User from "../entities/user";
 import UserService from "../services/user.service";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
+import { AppError } from "../utils/apperror";
+import { nextTick } from "process";
 
 class UserController {
-  async create(req: Request, res: Response): Promise<void> {
-    const { name, email, password } = req.body;
-    if (!name || !email || !password) {
-      res.status(400).json({ message: "Missing required fields" });
-      return;
-    }
+  async create(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
+      const { name, email, password } = req.body;
+      if (!name || !email || !password) {
+        throw new AppError("Campos obrigatórios", 400);
+      }
       const user = await UserService.create(name, email, password);
+      if (!user) {
+        throw new AppError("Erro ao criar usuário", 500);
+      }
       res.status(201).json(user);
-    } catch {
-      res.status(400).json({ message: "Error creating user" });
+    } catch (err) {
+      next(err);
     }
   }
 
-  async findAll(req: Request, res: Response): Promise<void> {
+  async findAll(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
-      const users = await UserService.findAll();
+      const email = req.user.email;
+      const users = await UserService.findAll(email);
+      if (!users) {
+        throw new AppError("Nenhum item encontrado", 204);
+      }
       res.status(200).json(users);
-    } catch {
-      res.status(400).json({ message: "Error list users" });
+    } catch (err) {
+      next(err);
     }
   }
 
-  async login(req: Request, res: Response): Promise<void> {
-    const { email, password } = req.body;
+  async login(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
+      const { email, password } = req.body;
+      if (!email || password) {
+        throw new AppError("Campos obrigatórios", 400);
+      }
       const user = await UserService.login(email, password);
+      if (!user) {
+        throw new AppError("Credenciais inválidas", 401);
+      }
       res.status(200).json(user);
-    } catch (error) {
-      console.error("Erro no login:", error);
-      res.status(400).json({ message: "Invalid credentials" });
+    } catch (err) {
+      next(err);
     }
   }
 }

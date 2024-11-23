@@ -1,7 +1,6 @@
 import financeService from "../services/finance.service";
 import { NextFunction, Request, Response } from "express";
 import { AppError } from "../utils/apperror";
-import { Next } from "mysql2/typings/mysql/lib/parsers/typeCast";
 class FinanceController {
   async create(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {

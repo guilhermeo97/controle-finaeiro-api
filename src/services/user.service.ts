@@ -19,37 +19,54 @@ class UserService {
   async create(name: string, email: string, password: string) {
     const hashedPassword = await this.bcryptHash(password);
     if (!hashedPassword) {
-      return Error("Não foi possível encriptar a senha");
+      return null;
     }
     const newUser = new User(name, email, hashedPassword);
-    await this.userRepository.save(newUser);
+    const createUser = await this.userRepository.save(newUser);
 
-    return newUser;
+    if (!createUser) {
+      return null;
+    }
+
+    return createUser;
   }
 
-  async findAll() {
-    return this.userRepository.find();
+  async findAll(email: string) {
+    const findUser = await this.findUserByEmail(email);
+    if (!findUser) {
+      return null;
+    }
+    const findUsers = await this.userRepository.find();
+    if (findUsers.length === 0) {
+      return null;
+    }
+    return findUsers;
   }
 
   async login(email: string, password: string) {
-    if (!email || !password) {
-      throw new Error("E-mail e senha são obrigatório");
-    }
     const findUser = await this.findUserByEmail(email);
     if (!findUser) {
-      throw new Error("Usuário não encontrado");
+      return null;
     }
     const isPasswordValid = await bcrypt.compare(password, findUser.password);
     if (!isPasswordValid) {
-      throw new Error("Senha inválida");
+      return null;
     }
 
     const token = generateToken({ email: findUser.email });
+    if (!token) {
+      return null;
+    }
+
     return { data: { findUser, token } };
   }
 
   async findUserByEmail(email: string) {
-    return this.userRepository.findOne({ where: { email } });
+    const findUser = this.userRepository.findOne({ where: { email } });
+    if (!findUser) {
+      return null;
+    }
+    return findUser;
   }
 }
 
