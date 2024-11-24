@@ -12,6 +12,7 @@ console.log("DB_PASSWORD:", process.env.DB_PASSWORD);
 console.log("DB_DATABASE:", process.env.DB_DATABASE);
 
 const server = express();
+const serverPort = 8080;
 
 server.use(express.json());
 server.use("/", mainRouter);
@@ -30,8 +31,6 @@ process.on("unhandledRejection", (reason, promise) => {
 AppDataSource.initialize()
   .then(() => {
     console.log("Database connected");
-
-    const serverPort = parseInt(process.env.SERVER_PORT || "3000");
 
     server.listen(serverPort, () => {
       console.log(`Server is running on port ${serverPort}`);

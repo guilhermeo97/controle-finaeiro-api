@@ -1,6 +1,11 @@
 import financeService from "../services/finance.service";
 import { NextFunction, Request, Response } from "express";
 import { AppError } from "../utils/apperror";
+import CreateFinanceDTO from "../dto/createfinancedto";
+import { validate } from "class-validator";
+import DisplayFinanceDTO from "../dto/displayfinancedto";
+import ModifyinanceDTO from "../dto/modifyfinancedto";
+import { DisplayUserDTO } from "../dto/displayuserdto";
 class FinanceController {
   async create(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -10,23 +15,27 @@ class FinanceController {
       if (!email) {
         throw new AppError("Acesso negado", 401);
       }
-      if (!description || !ocurenceDate || !typeValue || !money) {
-        throw new AppError("Campos obrigatórios", 400);
-      }
 
-      const newFinance = await financeService.create(
-        description,
+      const dto = new CreateFinanceDTO(
+        description.trim(),
         ocurenceDate,
         typeValue,
-        money,
-        email
+        money
       );
+      const errors = await validate(dto);
+
+      if (errors.length > 0) {
+        return next(errors);
+      }
+
+      const newFinance = await financeService.create(dto, email);
+      if (!newFinance) {
+        throw new AppError("Erro ao criar finance", 400);
+      }
       res.status(201).json(newFinance);
     } catch (err) {
       next(err);
     }
-
-    return;
   }
 
   async delete(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -85,19 +94,22 @@ class FinanceController {
       if (!financeId) {
         throw new AppError("Finança não informada", 400);
       }
-      const { description, ocurenceDate, typeValue, money, user } = req.body;
-      const newFinance = await financeService.modifyOneFinance(
-        financeId,
+      const { description, ocurenceDate, typeValue, money } = req.body;
+      const dto = new ModifyinanceDTO(
         description,
         ocurenceDate,
         typeValue,
-        money,
+        money
+      );
+      const updateFinance = await financeService.modifyOneFinance(
+        financeId,
+        dto,
         email
       );
-      if (!newFinance) {
+      if (!updateFinance) {
         throw new AppError("Finança não encontrada", 404);
       }
-      res.status(200).json(newFinance);
+      res.status(200).json(updateFinance);
     } catch (err) {
       next(err);
     }
@@ -119,7 +131,18 @@ class FinanceController {
       if (!findOneFinance) {
         throw new AppError("Finança não encontrada", 404);
       }
-      res.status(200).json(findOneFinance);
+      const user = new DisplayUserDTO(
+        findOneFinance.user.name,
+        findOneFinance.user.email
+      );
+      const finance = new DisplayFinanceDTO(
+        findOneFinance.description,
+        findOneFinance.ocurenceDate,
+        findOneFinance.typeValue,
+        findOneFinance.money,
+        user
+      );
+      res.status(200).json(finance);
     } catch (err) {
       next(err);
     }

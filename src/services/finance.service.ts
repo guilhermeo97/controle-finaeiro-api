@@ -1,30 +1,42 @@
 import { AppDataSource } from "../data-source";
-import { TypeValue } from "../entities/enums/TypeValue";
+import CreateFinanceDTO from "../dto/createfinancedto";
+import DisplayFinanceDTO from "../dto/displayfinancedto";
+import { DisplayUserDTO } from "../dto/displayuserdto";
+import ModifyinanceDTO from "../dto/modifyfinancedto";
 import Finance from "../entities/finance";
 import userService from "./user.service";
 
 class FinanceService {
   private financeRepository = AppDataSource.getRepository(Finance);
 
-  async create(
-    description: string,
-    ocurenceDate: Date,
-    typeValue: TypeValue,
-    money: number,
-    email: string
-  ) {
+  async create(dto: CreateFinanceDTO, email: string) {
     const findUser = await userService.findUserByEmail(email);
     if (!findUser) {
-      throw new Error("Usuário não encontrado");
+      return null;
     }
+    const displayUser = new DisplayUserDTO(findUser.name, findUser.email);
     const newFinance = new Finance(
-      description,
-      ocurenceDate,
-      typeValue,
-      money,
+      dto.description,
+      dto.ocurenceDate,
+      dto.typeValue,
+      dto.money,
       findUser
     );
-    return await this.financeRepository.save(newFinance);
+
+    const displayFinance = new DisplayFinanceDTO(
+      dto.description,
+      dto.ocurenceDate,
+      dto.typeValue,
+      dto.money,
+      displayUser
+    );
+
+    const saveFinance = await this.financeRepository.save(newFinance);
+    if (!saveFinance) {
+      return null;
+    }
+
+    return displayFinance;
   }
 
   async delete(id: number, email: string) {
@@ -37,15 +49,21 @@ class FinanceService {
       return null;
     }
 
-    if (findUser.id === findFinance.user.id) {
+    if (findUser.id !== findFinance.user.id) {
       return null;
     }
 
-    return await this.financeRepository.delete(id);
+    const deleteFinance = await this.financeRepository.delete(id);
+    if (!deleteFinance) {
+      return null;
+    }
+    return deleteFinance;
   }
 
-  async findOne(id: number) {
-    const findFinance = await this.financeRepository.findOne({ where: { id } });
+  async findOne(financeId: number) {
+    const findFinance = await this.financeRepository.findOne({
+      where: { id: financeId },
+    });
     if (!findFinance) {
       return null;
     }
@@ -57,6 +75,7 @@ class FinanceService {
     if (!findUser) {
       return null;
     }
+    const displayUser = new DisplayUserDTO(findUser.name, findUser.email);
 
     const findFinances = await this.financeRepository.find({
       where: { user: { id: findUser.id } },
@@ -66,15 +85,22 @@ class FinanceService {
       return null;
     }
 
-    return findFinances;
+    const listFinances = findFinances.map((finance) => {
+      return new DisplayFinanceDTO(
+        finance.description,
+        finance.ocurenceDate,
+        finance.typeValue,
+        finance.money,
+        displayUser
+      );
+    });
+
+    return listFinances;
   }
 
   async modifyOneFinance(
-    id: number,
-    description: string,
-    ocurenceDate: Date,
-    typeValue: TypeValue,
-    money: number,
+    financeId: number,
+    dto: ModifyinanceDTO,
     email: string
   ) {
     const findUser = await userService.findUserByEmail(email);
@@ -82,17 +108,35 @@ class FinanceService {
       return null;
     }
 
-    const findFinance = await this.findOne(id);
+    const findFinance = await this.findOne(financeId);
     if (!findFinance) {
       return null;
     }
 
-    findFinance.description = description ?? findFinance.description;
-    findFinance.ocurenceDate = ocurenceDate ?? findFinance.ocurenceDate;
-    findFinance.typeValue = typeValue ?? findFinance.typeValue;
-    findFinance.money = money ?? findFinance.money;
+    if (findUser.id !== findFinance.user.id) {
+      return null;
+    }
 
-    return this.financeRepository.save(findFinance);
+    const displayUser = new DisplayUserDTO(findUser.name, findUser.email);
+
+    findFinance.description = dto.description ?? findFinance.description;
+    findFinance.ocurenceDate = dto.ocurenceDate ?? findFinance.ocurenceDate;
+    findFinance.typeValue = dto.typeValue ?? findFinance.typeValue;
+    findFinance.money = dto.money ?? findFinance.money;
+
+    const modifyFinance = await this.financeRepository.save(findFinance);
+    if (!modifyFinance) {
+      return null;
+    }
+    const displayFinance = new DisplayFinanceDTO(
+      modifyFinance.description,
+      modifyFinance.ocurenceDate,
+      modifyFinance.typeValue,
+      modifyFinance.money,
+      displayUser
+    );
+
+    return displayFinance;
   }
 }
 
